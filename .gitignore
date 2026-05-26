@@ -1,0 +1,11 @@
+.env
+.server.*.log
+__pycache__/
+*.py[cod]
+.venv/
+.python312/
+.tmp-*/
+generated/
+.downloads/
+.DS_Store
+Thumbs.db

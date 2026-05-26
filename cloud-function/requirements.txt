@@ -1,0 +1,10 @@
+Flask==1.0.2
+werkzeug==0.16.0
+Jinja2==3.0.1
+MarkupSafe==2.0.1
+itsdangerous==2.0.1
+click==8.0.1
+tencentcloud-sdk-python-asr==3.1.68
+websocket-client==1.4.1
+requests==2.31.0
+urllib3==1.26.18

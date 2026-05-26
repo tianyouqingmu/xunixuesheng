@@ -1,0 +1,146 @@
+{
+  "files": [
+    {
+      "name": "知识库1.docx",
+      "path": "F:\\cx\\aijiaoxue\\知识库1.docx",
+      "exists": true,
+      "paragraphs": 228
+    },
+    {
+      "name": "知识库2.docx",
+      "path": "F:\\cx\\aijiaoxue\\知识库2.docx",
+      "exists": true,
+      "paragraphs": 194
+    }
+  ],
+  "chunks": [
+    {
+      "source": "知识库1.docx",
+      "text": "OpenCV Python 编程易错点知识库（小白专属）\nOpenCV-Python 编程易错点知识库（小白专属）\n文档说明\n本文档针对 Python+OpenCV 机器视觉编程场景，系统性梳理了程序小白高频踩坑的易错点，覆盖基础语法、核心函数、数组操作、视频处理、调试排错五大核心模块，可作为日常编码避坑、报错排查的专属知识库。所有易错点均配套错误示例、正确写法和避坑提示，零基础可直接对照使用。\n一、Python 基础语法高频易错点（最高频踩坑）\n1. 中英文符号混用（报错率 TOP1）\n易错场景\n代码中括号、引号、冒号、逗号、小数点等符号使用了中文全角符号，Python 无法识别，直接抛出SyntaxError语法错误。\n错误示例\npythoncv2.imread（'1.jpg'） # 中文全角括号cv2.imshow('img'，img) # 中文全角逗号if key==27： # 中文全角冒号 break\n正确示例\npythoncv2.imread('1.jpg') # 英文半角括号cv2.imshow('img', img) # 英文半角逗号if key==27: # 英文半角冒号 break\n避坑提示\n编码时保持输入法为英文状态；出现SyntaxError报错，第一时间检查符号是否为全角中文。\n2. 缩进错误（Python 语法核心坑）\n易错场景\nPython 通过缩进来区分代码块，小白常出现缩进缺失、缩进层级混乱、Tab 和空格混用的问题，导致IndentationError报错或逻辑执行异常。\n错误示例\npython# 错误1：循环内代码未缩进for i in range(10):print(i)# 错误2：同一代码块缩进层级不一致if key == 27: print(\"退出程序\") break # 缩进少2个空格\n正确示例\npython# 统一使用4个空格缩进，禁止Tab和空格混用for i in range(10): print(i)if key == 27: print(\"退出程序\") break\n避坑提示"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "在代码编辑器中设置「Tab 自动转换为 4 个空格」；def/if/for/while等带代码块的语句，末尾必须加英文冒号，下一行强制缩进。\n3. 字母大小写错误（变量 / 函数 / 常量名）\n易错场景\nPython 严格区分大小写，小白常出现库名、函数名、常量名、变量名的大小写混用，导致NameError未定义报错或函数调用失效。\n核心错误点 & 正确写法\n错误类型\n错误示例\n正确写法\n库名导入\nimport CV2/import Numpy\nimport cv2/import numpy as np\n函数名\ncv2.ImRead()/cv2.MatchTemplate()\ncv2.imread()/cv2.matchTemplate()\n常量名\ncv2.tm_sqdiff/cv2.color_bgr2gray\ncv2.TM_SQDIFF/cv2.COLOR_BGR2GRAY\n变量名\n定义img=cv2.imread()，后续调用Img.shape\n全程统一变量名img，不随意切换大小写\n避坑提示\nOpenCV 命名规则：函数名统一为小写 + 下划线，常量名统一为全大写 + 下划线，严格复制官方命名，不自行拼写。\n4. 括号不配对 / 缺失\n易错场景\n函数调用、数组索引时，括号()/[]/{}数量不匹配，少写右括号，导致SyntaxError报错。\n错误示例\npython# 少1个右括号cv2.calcHist([img],[0],None,[256],[0,255]# 数组索引括号不配对img_roi = img[y1:y2, x1:x2\n正确示例\npythoncv2.calcHist([img],[0],None,[256],[0,255])img_roi = img[y1:y2, x1:x2]\n避坑提示\n写左括号时立刻补全右括号，再在中间填写内容；代码编辑器均有括号配对高亮功能，可通过高亮检查配对情况。\n二、OpenCV 核心函数专属易错点\n2.1 图像读写函数（imread/imshow/imwrite）\n易错点 1：imread 读取失败，返回 None"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "核心原因：文件路径错误、路径含中文、文件名 / 后缀名写错，后续调用img.shape会抛出'NoneType' object has no attribute 'shape'报错。\n错误示例：cv2.imread('C:/图片/1.jpg')（含中文路径）、cv2.imread('1.png')（实际文件为 1.jpg）。\n正确做法：\n路径使用纯英文 / 数字，小白优先将图片和 py 文件放在同一文件夹，直接写文件名；\n中文路径专用写法：cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)；\n读取后强制判空：\npythonimg = cv2.imread('1.jpg')if img is None: print(\"图像读取失败，请检查路径\") exit()\n易错点 2：imshow 后无 waitKey，窗口黑屏 / 闪退\n错误场景：只写cv2.imshow()，不搭配cv2.waitKey()，窗口瞬间关闭或无画面。\n错误示例：\npythoncv2.imshow('img', img)cv2.destroyAllWindows() # 无waitKey，窗口无法正常渲染\n正确示例：\npythoncv2.imshow('img', img)cv2.waitKey(0) # 0=无限等待按键，数字为等待毫秒数（视频循环建议25ms）cv2.destroyAllWindows()\n易错点 3：imwrite 保存失败，文件为空\n核心原因：保存路径不存在、文件夹无写入权限、后缀名与编码器不匹配。\n正确做法：优先保存在当前文件夹，直接写文件名；保存后判断返回值：\npythonsave_flag = cv2.imwrite('result.jpg', img)if not save_flag: print(\"图像保存失败\")\n2.2 颜色空间转换（cvtColor）\n易错点 1：转换码写反，BGR 与 RGB/HSV 混淆\n核心坑：OpenCV 默认彩色图像为BGR 通道顺序，而非 RGB，小白常写反转换码导致颜色异常。"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "错误示例：cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)（原图为 BGR，转换后颜色错误）。\n正确示例：\npython# BGR转灰度图img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)# BGR转HSVimg_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)# BGR转RGB（给matplotlib显示用）img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)\n易错点 2：单通道函数传入 3 通道图像\n错误场景：cv2.threshold()/cv2.Canny()/cv2.calcHist()等单通道专属函数，直接传入 3 通道彩色图，导致报错或结果异常。\n正确做法：执行函数前，必须通过cvtColor转为灰度图，或读取时直接读灰度图。\n2.3 绘图函数（line/rectangle/circle/putText）\n易错点 1：坐标 (x,y) 与数组 (y,x) 写反，绘制位置错误\n核心规则：OpenCV 绘图函数的坐标是(x, y)（x = 宽度 / 列，y = 高度 / 行）；而图像数组索引是img[y, x]，二者顺序完全相反。\n错误示例：cv2.rectangle(img, (y1,x1), (y2,x2), (255,0,0), 2)（坐标写反，绘制位置完全错误）。\n正确示例：\npythonh, w = img.shape[:2] # 先获取图像高、宽x1, y1 = 50, 50x2, y2 = 200, 200# 绘制矩形：(x1,y1)左上角，(x2,y2)右下角cv2.rectangle(img, (x1,y1), (x2,y2), (255,0,0), 2)# ROI区域截取：先y范围，后x范围img_roi = img[y1:y2, x1:x2]\n易错点 2：颜色通道顺序错误，BGR 写成 RGB\n错误示例：cv2.line(img, (0,0), (100,100), (255,0,0), 2)（想要红色，实际是蓝色）。"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "正确规则：OpenCV 颜色格式为 \\\\(B, G, R)\\\\，蓝色(255,0,0)、绿色(0,255,0)、红色(0,0,255)。\n易错点 3：cv2.putText 无法显示中文，出现乱码 / 方框\n核心原因：OpenCV 原生不支持中文渲染，强行写入会出现乱码。\n正确做法：使用 PIL 库实现中文绘制，参考代码：\npythonimport cv2import numpy as npfrom PIL import ImageFont, ImageDraw, Imageimg = np.zeros((200, 320, 3), np.uint8) + 255font = ImageFont.truetype(\"STSONG.TTF\", 36) # 加载系统中文字体img_pil = Image.fromarray(img)draw = ImageDraw.Draw(img_pil)draw.text((50, 60), '计算机视觉', font=font, fill=(0,0,0))img = np.array(img_pil)\n2.4 模板匹配函数（matchTemplate）\n易错点 1：匹配方法与最值取值搞反，匹配位置完全错误\n核心规则：不同匹配方法，最佳匹配的最值完全相反，小白 90% 会搞反minLoc和maxLoc。\n错误示例：使用cv2.TM_SQDIFF方法，却取maxLoc作为最佳匹配位置。\n正确匹配规则：\n匹配方法分类\n具体方法\n最佳匹配取值\n对应位置\n方差类\nTM_SQDIFF、TM_SQDIFF_NORMED\n值越小，匹配度越高\nminLoc\n相关 / 相关系数类\nTM_CCORR、TM_CCORR_NORMED、TM_CCOEFF、TM_CCOEFF_NORMED\n值越大，匹配度越高\nmaxLoc\n易错点 2：模板尺寸大于原图，函数直接报错\n正确做法：确保模板图的宽高，必须小于原图的宽高，即templ_h < img_h且templ_w < img_w。\n易错点 3：多目标匹配出现重复定位（Overlap）\n错误场景：双重循环遍历所有像素，同一个目标被多次匹配，绘制多个重叠框。"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "正确做法：对匹配到的位置做邻域非极大值抑制，参考文档示例函数find_minNvalue_v3，避免重复定位。\n2.5 阈值处理函数（threshold/adaptiveThreshold）\n易错点 1：返回值解包错误，漏接阈值\n错误示例：img2 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)（只接 1 个返回值，后续操作直接报错）。\n正确示例：ret, img_binary = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)。\n易错点 2：自适应阈值 blockSize 必须是大于 1 的奇数\n错误示例：cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 4, 10)（blockSize=4 是偶数，直接报错）。\n正确做法：blockSize 必须设置为 3、5、7、9 等大于 1 的奇数。\n易错点 3：Otsu 阈值处理，手动设置的阈值无效\n正确示例：ret, img_otsu = cv2.threshold(img_gray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)（阈值位传 0 即可，算法会自动计算最优阈值）。\n2.6 轮廓检测函数（findContours/drawContours）\n易错点 1：返回值解包错误，OpenCV 版本不兼容\n核心差异：OpenCV3.x 返回 3 个值image, contours, hierarchy，OpenCV4.x 返回 2 个值contours, hierarchy，解包数量不对直接报错。\n兼容写法："
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "python# OpenCV4.x 标准写法cnts, hierarchy = cv2.findContours(img_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)# 若报错，改为3.x兼容写法# _, cnts, hierarchy = cv2.findContours(img_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)\n易错点 2：画不出轮廓，contourIdx 参数错误\n错误示例：cv2.drawContours(img, cnts, 0, (0,0,255), 2)（想画所有轮廓，却只画了第 0 个）。\n正确示例：绘制所有轮廓，contourIdx必须设为-1：\npythoncv2.drawContours(img, cnts, -1, (0,0,255), 2)\n易错点 3：输入图像不符合要求\n正确做法：findContours必须传入单通道二值图像，流程为：彩色图→转灰度图→阈值二值化 / Canny 边缘检测→轮廓检测。\n2.7 直方图相关函数（calcHist/compareHist）\n易错点 1：calcHist 参数漏写方括号，直接报错（小白最高频）\n错误示例：cv2.calcHist(img, 0, None, 256, 0,255)（核心参数未用方括号包裹）。\n正确示例：image/channels/histSize/ranges四个核心参数必须用列表[]包裹：\npythonhist = cv2.calcHist([img], [0], None, [256], [0,255])\n易错点 2：直方图比较方法的阈值判断搞反\n比较方法\n相似度规则\n完美匹配值\nHISTCMP_CORREL（相关性）、HISTCMP_INTERSECT（交叉）\n值越大，相似度越高\n1\nHISTCMP_CHISQR（卡方）、HISTCMP_BHATTACHARYYA（巴氏距离）、HISTCMP_KL_DIV（KL 散度）\n值越小，相似度越高\n0\n2.8 图像几何变换函数（resize/flip）"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "易错点 1：resize 的 dsize 参数宽高写反，图像严重变形\n核心坑：img.shape返回的是(高度h, 宽度w)，而resize的dsize参数是(宽度w, 高度h)，二者顺序完全相反，小白 90% 会写反。\n错误示例：\npythonh, w = img.shape[:2]img_resize = cv2.resize(img, (h, w)) # 宽高写反，图像变形\n正确示例：\npythonh, w = img.shape[:2]img_resize = cv2.resize(img, (w, h)) # 原尺寸img_resize2 = cv2.resize(img, None, fx=0.5, fy=0.5) # 等比例缩放0.5倍\n易错点 2：flip 翻转方向记错\nflipCode 参数值\n翻转效果\n0\n绕 x 轴翻转（垂直翻转）\n>0（如 1）\n绕 y 轴翻转（水平翻转）\n<0（如 - 1）\n同时水平 + 垂直翻转\n三、NumPy 数组操作易错点\nOpenCV 图像本质是 NumPy 数组，数组操作错误会直接导致图像异常 / 报错。\n3.1 数组数据类型转换错误，uint8 数值溢出\n错误场景：直接对uint8类型的图像做加减乘除，数值超过 255 会自动取模（如 260→4），导致图像花屏。\n错误示例：\npythonimg = cv2.imread('1.jpg') # uint8类型img = img * 1.5 + 30 # 数值溢出，结果异常\n正确做法：先转float32运算，再截断 0-255，最后转回uint8：\npythonimg = cv2.imread('1.jpg').astype(np.float32)img = img * 1.5 + 30img = np.clip(img, 0, 255) # 截断超出0-255的数值img = img.astype(np.uint8)\n3.2 数组切片维度不匹配\n错误示例：3 通道彩色图执行img[y1:y2, x1:x2] = 255，通道维度不匹配报错。\n正确示例："
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "python# 单通道灰度图赋值白色img_gray[y1:y2, x1:x2] = 255# 3通道彩色图赋值白色img_color[y1:y2, x1:x2] = [255,255,255]\n3.3 数组 shape 解包错误\n错误示例：彩色图执行w, h = img.shape，漏了通道数，解包报错。\n正确示例：\npython# 彩色图：只取前两个值，忽略通道数h, w = img.shape[:2]# 灰度图：只有两个维度，直接解包h, w = img_gray.shape\n四、视频处理相关易错点（VideoCapture/VideoWriter）\n4.1 摄像头 / 视频文件打开失败，未做判空\n正确做法：打开后必须判断是否成功，避免后续read()报错：\npythonvc = cv2.VideoCapture(0) # 0=默认摄像头，也可填视频文件路径if not vc.isOpened(): print(\"视频源打开失败\") exit()\n4.2 视频帧读取未判断 success，视频结束后报错\n正确循环写法：\npythonsuccess, frame = vc.read()while success: # 帧处理逻辑 cv2.imshow('video', frame) # 读取下一帧 success, frame = vc.read() # 按Esc退出 if cv2.waitKey(25) & 0xFF == 27: break\n4.3 VideoWriter 保存视频为空 / 无法打开\n核心避坑点：\n编码器与文件后缀必须匹配：XVID对应.avi，MP42对应.avi，avc1对应.mp4；\n写入的frame尺寸，必须与VideoWriter设置的size(width, height)完全一致；\n灰度图写入时，必须设置isColor=False；\n程序结束前必须执行vw.release()释放对象，否则视频文件无法正常保存。\n正确示例："
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "pythonfps = 30size = (int(vc.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vc.get(cv2.CAP_PROP_FRAME_HEIGHT)))fourcc = cv2.VideoWriter_fourcc('X','V','I','D')vw = cv2.VideoWriter('output.avi', fourcc, fps, size)# 循环写入帧success, frame = vc.read()while success: vw.write(frame) success, frame = vc.read()# 释放资源vc.release()vw.release()cv2.destroyAllWindows()\n五、小白排错速查表\n常见报错信息\n核心原因\n快速解决方法\n'NoneType' object has no attribute 'shape'\nimread 读取图像失败，返回 None\n检查图像路径、文件名、后缀名，路径避免中文，读取后判空\nSyntaxError: invalid syntax\n中英文符号混用、括号不配对、冒号缺失\n检查报错行的符号，确保全为英文半角，括号配对，代码块末尾加冒号\nIndentationError\n缩进错误、Tab 和空格混用\n统一使用 4 个空格缩进，检查代码块层级\nerror: (-215:Assertion failed) size.width>0 && size.height>0\n模板尺寸大于原图、图像读取失败、resize 尺寸错误\n确保模板宽高小于原图，检查图像是否读取成功，resize 尺寸先宽后高\nModuleNotFoundError: No module named 'cv2'\n未安装 opencv-python 库\n执行 pip install opencv-python numpy\nerror: (-215:Assertion failed) src.type() == CV_8UC1\n单通道函数传入了 3 通道彩色图\n先通过 cvtColor 转为灰度图，再执行函数"
+    },
+    {
+      "source": "知识库1.docx",
+      "text": "六、小白编码通用避坑准则\n先判空，后操作：图像读取、视频源打开后，先判断是否成功，再执行后续操作；\n先处理，后显示：永远先处理图像，再用 imshow 显示结果，避免显示原图的低级错误；\n参数复制，不手动拼写：OpenCV 的常量名、函数名，优先从官方文档 / 示例中复制，不手动拼写避免大小写错误；\n资源用完必释放：窗口用 destroyAllWindows 关闭，视频源用 release 释放，避免文件占用 / 内存泄漏；\n小步调试，逐段运行：不要一次性写完整段代码，写一个功能块就运行一次，快速定位报错位置。\n|（注：文档部分内容可能由 AI 生成）"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "OpenCV-Python 小白易错点配套实战案例集（2023 年 10 月 2 日）\nOpenCV-Python 小白易错点配套实战案例集\n本文档为上一篇易错点知识库的配套实战案例，所有案例均来自小白编码的真实高频踩坑场景，每个案例严格按照「错误代码+异常现象/报错信息+正确代码+避坑详解」结构编写，零基础可直接对照排查、复现和修正。\n一、图像读写与显示类易错案例\n案例1：imread中文路径读取失败（最常见场景）\n错误代码\nPythonimport cv2# 错误：路径包含中文，imread原生不支持，读取返回Noneimg = cv2.imread(\"D:/测试图片/工件.jpg\")print(img.shape) # 直接触发报错\n异常报错\nPlaintextAttributeError: 'NoneType' object has no attribute 'shape'\n正确代码\nPythonimport cv2import numpy as np# 方案1：路径改为纯英文（小白首选，零出错）img = cv2.imread(\"D:/test_img/workpiece.jpg\")# 方案2：中文路径专用解码写法img_path = \"D:/测试图片/工件.jpg\"img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), cv2.IMREAD_COLOR)# 强制判空，提前拦截错误if img is None: print(\"图像读取失败，请检查路径/文件名/后缀名\") exit()print(img.shape)cv2.imshow(\"img\", img)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\nWindows系统下，OpenCV的imread原生不支持中文/空格/特殊字符路径，优先使用纯英文路径；\n必须加读取判空逻辑，90%的后续报错都源于图像读取失败却继续执行代码。\n案例2：imshow窗口名不一致，画面不显示\n错误代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2img = cv2.imread(\"1.jpg\")# 错误：创建窗口和显示图像的窗口名不一致，画面黑屏/不显示cv2.namedWindow(\"original\", cv2.WINDOW_NORMAL)cv2.imshow(\"img\", img) # 窗口名和上面的original不匹配cv2.waitKey(0)cv2.destroyAllWindows()\n异常现象\n窗口能打开，但无图像显示，全程黑屏，无代码报错。\n正确代码\nPythonimport cv2img = cv2.imread(\"1.jpg\")if img is None: print(\"图像读取失败\") exit()# 窗口名全程保持一致win_name = \"original\"cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)cv2.imshow(win_name, img)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\nOpenCV通过窗口名匹配窗口，名称不一致会导致图像无法渲染到对应窗口，建议用变量统一存储窗口名，避免手动拼写错误。\n案例3：imwrite保存PNG透明图失败\n错误代码\nPythonimport cv2import numpy as np# 创建带透明通道的4通道图像img = np.zeros((200, 200, 4), dtype=np.uint8)# 错误：保存为jpg格式，jpg不支持透明通道，保存后透明通道丢失cv2.imwrite(\"result.jpg\", img)\n异常现象\n保存的图片无透明效果，透明区域直接变成黑色，无代码报错。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import numpy as np# 创建4通道BGRA图像（B蓝G绿R红A透明）img = np.zeros((200, 200, 4), dtype=np.uint8)img[50:150, 50:150] = [255, 0, 0, 128] # 半透明蓝色方块# 必须保存为png格式，才支持透明通道save_flag = cv2.imwrite(\"result.png\", img)if not save_flag: print(\"图像保存失败\")cv2.imshow(\"img\", img)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\nJPG/JPEG格式不支持透明通道，只有PNG/TIFF等格式支持Alpha通道；\n保存后必须判断返回值，imwrite保存失败会返回False，不会主动报错。\n二、坐标与ROI区域操作类易错案例\n案例4：坐标(x,y)与数组(y,x)写反，ROI截取/绘图位置完全错误\n错误代码\nPythonimport cv2img = cv2.imread(\"1.jpg\")h, w = img.shape[:2]# 错误1：矩形绘制坐标写反，(y1,x1)写成了(x1,y1)，绘制位置完全偏移cv2.rectangle(img, (100, 50), (200, 150), (0, 0, 255), 2)# 错误2：ROI切片写反，先x后y，直接触发数组越界报错roi = img[50:200, 100:150]\n异常现象\n矩形绘制位置完全不对，ROI切片要么越界报错，要么截取的区域和预期完全不符。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2img = cv2.imread(\"1.jpg\")if img is None: exit()h, w = img.shape[:2]# 核心规则：# 1. 绘图函数：坐标格式为 (x, y) → x=列/宽度方向，y=行/高度方向# 2. 数组切片：格式为 img[y_start:y_end, x_start:x_end] → 先高度，后宽度x1, y1 = 50, 100 # 左上角坐标x2, y2 = 150, 200 # 右下角坐标# 正确绘制矩形cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)# 正确截取ROI区域roi = img[y1:y2, x1:x2]cv2.imshow(\"img\", img)cv2.imshow(\"roi\", roi)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\n这是小白TOP3高频错误，记住一句口诀：绘图先x后y，切片先y后x，所有坐标操作前先定义x1,y1,x2,y2变量，不要直接写数字。\n案例5：ROI切片越界，无报错但画面异常\n错误代码\nPythonimport cv2img = cv2.imread(\"1.jpg\")h, w = img.shape[:2]# 错误：x2=w+100超出了图像宽度，y2=h+100超出高度，切片越界roi = img[100:h+100, 100:w+100]\n异常现象\n无代码报错，但ROI区域变成了原图的局部，和预期的区域完全不符，小白很难排查。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2img = cv2.imread(\"1.jpg\")if img is None: exit()h, w = img.shape[:2]# 先做边界判断，确保坐标不超出图像范围x1, y1 = 50, 100x2, y2 = 600, 800# 边界截断，防止越界x1 = max(0, x1)y1 = max(0, y1)x2 = min(w, x2)y2 = min(h, y2)roi = img[y1:y2, x1:x2]cv2.imshow(\"roi\", roi)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\nNumPy数组切片超出范围不会报错，只会返回有效范围内的数组，导致结果异常却无提示，必须在切片前做边界截断。\n案例6：ROI赋值维度不匹配，直接报错\n错误代码\nPythonimport cv2import numpy as npimg = cv2.imread(\"1.jpg\") # 3通道彩色图roi = img[100:200, 100:200]# 错误：3通道图像赋值单通道数值，维度不匹配img[100:200, 100:200] = 255\n异常报错\nPlaintextValueError: could not broadcast input array from shape (3) into shape (100,100,3)\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import numpy as np# 3通道彩色图操作img_color = cv2.imread(\"1.jpg\")if img_color is None: exit()# 正确：3通道赋值[B,G,R]格式img_color[100:200, 100:200] = [255, 255, 255] # 白色# 单通道灰度图操作img_gray = cv2.cvtColor(img_color, cv2.COLOR_BGR2GRAY)# 正确：单通道直接赋值数值img_gray[100:200, 100:200] = 255 # 白色cv2.imshow(\"color\", img_color)cv2.imshow(\"gray\", img_gray)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\n彩色图是(h,w,3)的三维数组，必须赋值3个数值的列表；灰度图是(h,w)的二维数组，可直接赋值单个数值，二者不能混用。\n三、颜色空间与通道操作类易错案例\n案例7：BGR与RGB顺序搞反，颜色完全错乱\n错误代码\nPythonimport cv2import matplotlib.pyplot as pltimg = cv2.imread(\"1.jpg\")# 错误：OpenCV读取的是BGR格式，直接用matplotlib显示，红蓝色完全反转plt.imshow(img)plt.show()# 错误2：颜色空间转换码写反img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)\n异常现象\nmatplotlib显示的图片红蓝色完全反转，HSV转换后的颜色提取完全失效。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import matplotlib.pyplot as pltimg = cv2.imread(\"1.jpg\")if img is None: exit()# 给matplotlib显示：必须先转为RGB格式img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)plt.subplot(1,2,1)plt.imshow(img)plt.title(\"错误：BGR直接显示\")plt.subplot(1,2,2)plt.imshow(img_rgb)plt.title(\"正确：转为RGB显示\")plt.show()# 正确的HSV转换img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)\n避坑详解\nOpenCV的彩色图像默认是BGR通道顺序，不是RGB，所有颜色转换、第三方库显示，都必须先做通道顺序转换。\n案例8：HSV颜色阈值范围错误，目标提取失效\n错误代码\nPythonimport cv2import numpy as npimg = cv2.imread(\"blue_workpiece.jpg\")img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)# 错误：HSV的H通道范围是0-180，不是0-360，阈值设置超出范围，提取完全失效lower_blue = np.array([200, 50, 50])upper_blue = np.array([260, 255, 255])mask = cv2.inRange(img_hsv, lower_blue, upper_blue)\n异常现象\nmask全黑，没有提取到任何目标区域，无代码报错。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import numpy as npimg = cv2.imread(\"blue_workpiece.jpg\")if img is None: exit()img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)# 核心规则：OpenCV中HSV范围# H(色调)：0-180，S(饱和度)：0-255，V(亮度)：0-255# 蓝色H范围：100-124lower_blue = np.array([100, 50, 50])upper_blue = np.array([124, 255, 255])mask = cv2.inRange(img_hsv, lower_blue, upper_blue)result = cv2.bitwise_and(img, img, mask=mask)cv2.imshow(\"mask\", mask)cv2.imshow(\"result\", result)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\nOpenCV的HSV空间做了数值压缩，H通道最大值是180，不是360，这是颜色提取的核心坑，常见颜色H范围：红色0-10/156-180、绿色35-77、蓝色100-124、黄色26-34。\n案例9：通道拆分合并顺序错误，颜色错乱\n错误代码\nPythonimport cv2img = cv2.imread(\"1.jpg\")# 错误：split拆分顺序是B、G、R，小白误以为是R、G、B，合并时顺序写反r, g, b = cv2.split(img)img_new = cv2.merge([r, g, b])\n异常现象\n合并后的图像红蓝色完全反转，和原图颜色不一致。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2img = cv2.imread(\"1.jpg\")if img is None: exit()# 正确：split拆分顺序是 B通道、G通道、R通道b, g, r = cv2.split(img)# 合并为原图img_original = cv2.merge([b, g, r])# 合并为RGB格式img_rgb = cv2.merge([r, g, b])cv2.imshow(\"original\", img_original)cv2.imshow(\"rgb\", img_rgb)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\ncv2.split()返回的通道顺序和图像格式完全一致，BGR图像拆分后顺序永远是b, g, r，不要凭直觉写r, g, b。\n四、模板匹配类易错案例\n案例10：匹配方法与最值位置搞反，匹配结果完全错误\n错误代码\nPythonimport cv2# 单目标匹配img = cv2.imread(\"workpiece.jpg\", 0)template = cv2.imread(\"template.jpg\", 0)h, w = template.shape# 错误：使用TM_SQDIFF方法，却取maxLoc作为最佳匹配位置res = cv2.matchTemplate(img, template, cv2.TM_SQDIFF)min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)# 错误点：TM_SQDIFF是值越小匹配度越高，应该用min_loctop_left = max_locbottom_right = (top_left[0] + w, top_left[1] + h)cv2.rectangle(img, top_left, bottom_right, 255, 2)\n异常现象\n匹配框完全框不到目标，甚至框在空白区域，无代码报错。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2# 单目标匹配img = cv2.imread(\"workpiece.jpg\", 0)template = cv2.imread(\"template.jpg\", 0)if img is None or template is None: print(\"图像读取失败\") exit()h, w = template.shape# 方法1：方差类（TM_SQDIFF），值越小匹配度越高，取min_locres1 = cv2.matchTemplate(img, template, cv2.TM_SQDIFF_NORMED)min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res1)# 最佳匹配位置top_left1 = min_locbottom_right1 = (top_left1[0] + w, top_left1[1] + h)img_result1 = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)cv2.rectangle(img_result1, top_left1, bottom_right1, (0, 0, 255), 2)# 方法2：相关系数类（TM_CCOEFF），值越大匹配度越高，取max_locres2 = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res2)# 最佳匹配位置top_left2 = max_locbottom_right2 = (top_left2[0] + w, top_left2[1] + h)img_result2 = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)cv2.rectangle(img_result2, top_left2, bottom_right2, (0, 0, 255), 2)cv2.imshow(\"SQDIFF匹配结果\", img_result1)cv2.imshow(\"CCOEFF匹配结果\", img_result2)cv2.waitKey(0)cv2.destroyAllWindows()"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "避坑详解\n记住核心规则：方差类找最小值，相关类找最大值，归一化方法（带_NORMED）的匹配结果更稳定，小白优先使用TM_SQDIFF_NORMED或TM_CCOEFF_NORMED。\n案例11：多目标匹配重复框选，同一个目标出现多个框\n错误代码\nPythonimport cv2import numpy as npimg = cv2.imread(\"multi_workpiece.jpg\", 0)template = cv2.imread(\"template.jpg\", 0)h, w = template.shaperes = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)threshold = 0.8# 错误：直接取所有大于阈值的位置，同一个目标会有多个相邻像素满足阈值，导致重复框选loc = np.where(res >= threshold)img_result = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)for pt in zip(*loc[::-1]): cv2.rectangle(img_result, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)\n异常现象\n同一个目标上叠加了多个矩形框，画面杂乱，无法准确计数。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import numpy as np# 去重函数：非极大值抑制，解决重复框选def non_max_suppression(boxes, overlap_thresh=0.3): if len(boxes) == 0: return [] boxes = np.array(boxes, dtype=np.float32) x1 = boxes[:, 0] y1 = boxes[:, 1] x2 = boxes[:, 2] y2 = boxes[:, 3] areas = (x2 - x1 + 1) * (y2 - y1 + 1) idxs = np.argsort(y2) pick = [] while len(idxs) > 0: last = len(idxs) - 1 i = idxs[last] pick.append(i) xx1 = np.maximum(x1[i], x1[idxs[:last]]) yy1 = np.maximum(y1[i], y1[idxs[:last]]) xx2 = np.minimum(x2[i], x2[idxs[:last]]) yy2 = np.minimum(y2[i], y2[idxs[:last]]) w = np.maximum(0, xx2 - xx1 + 1) h = np.maximum(0, yy2 - yy1 + 1) overlap = (w * h) / areas[idxs[:last]] idxs = np.delete(idxs, np.concatenate(([last], np.where(overlap > overlap_thresh)[0]))) return boxes[pick].astype(np.int32)# 主程序img = cv2.imread(\"multi_workpiece.jpg\")template = cv2.imread(\"template.jpg\")if img is None or template is None: exit()img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)template_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)h, w = template_gray.shape# 模板匹配res = cv2.matchTemplate(img_gray, template_gray, cv2.TM_CCOEFF_NORMED)threshold = 0.8loc = np.where(res >= threshold)# 收集所有框boxes = []for pt in zip(*loc[::-1]): boxes.append([pt[0], pt[1], pt[0] + w, pt[1] + h])# 非极大值抑制去重boxes_nms = non_max_suppression(boxes)# 绘制最终结果for box in boxes_nms: x1, y1, x2, y2 = box cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)print(f\"检测到目标数量：{len(boxes_nms)}\")cv2.imshow(\"result\", img)cv2.waitKey(0)cv2.destroyAllWindows()"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "避坑详解\n多目标匹配的核心问题是重复定位，必须通过非极大值抑制(NMS) 去除重叠框，小白也可以用文档中提供的find_minNvalue_v3函数，通过邻域置最大值的方式去重。\n五、视频处理类易错案例\n案例12：视频循环无waitKey，窗口闪退/无画面\n错误代码\nPythonimport cv2vc = cv2.VideoCapture(\"test.mp4\")while True: success, frame = vc.read() if not success: break cv2.imshow(\"video\", frame) # 错误：无waitKey，窗口无法渲染画面，直接闪退vc.release()cv2.destroyAllWindows()\n异常现象\n窗口一闪而过，无法看到视频画面，无代码报错。\n正确代码\nPythonimport cv2vc = cv2.VideoCapture(\"test.mp4\")# 先判断视频是否打开成功if not vc.isOpened(): print(\"视频打开失败\") exit()# 获取视频帧率，设置合理的等待时间fps = vc.get(cv2.CAP_PROP_FPS)delay = int(1000 / fps) # 每帧等待时间，单位毫秒while True: success, frame = vc.read() if not success: print(\"视频读取结束\") break cv2.imshow(\"video\", frame) # 必须加waitKey，按Esc键退出 key = cv2.waitKey(delay) if key & 0xFF == 27: break# 释放资源vc.release()cv2.destroyAllWindows()\n避坑详解\ncv2.waitKey()不仅是等待按键，更是OpenCV窗口渲染画面的必要函数，视频循环中必须添加，延迟时间根据视频帧率计算，保证播放速度正常。\n案例13：VideoWriter保存视频为空/无法打开\n错误代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2vc = cv2.VideoCapture(0)fps = 30# 错误1：size写反了，应该是(width, height)，写成了(height, width)size = (int(vc.get(cv2.CAP_PROP_FRAME_HEIGHT)), int(vc.get(cv2.CAP_PROP_FRAME_WIDTH)))# 错误2：编码器和文件后缀不匹配fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')vw = cv2.VideoWriter(\"output.mp4\", fourcc, fps, size)while True: success, frame = vc.read() if not success: break vw.write(frame) cv2.imshow(\"camera\", frame) if cv2.waitKey(1) & 0xFF == 27: break# 错误3：没有释放vw对象，视频文件无法正常保存vc.release()cv2.destroyAllWindows()\n异常现象\n保存的视频文件大小为0KB，或无法用播放器打开，无代码报错。\n正确代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2vc = cv2.VideoCapture(0)if not vc.isOpened(): print(\"摄像头打开失败\") exit()fps = 30# 正确：size格式为 (宽度width, 高度height)，和shape顺序相反width = int(vc.get(cv2.CAP_PROP_FRAME_WIDTH))height = int(vc.get(cv2.CAP_PROP_FRAME_HEIGHT))size = (width, height)# 正确：编码器与文件后缀匹配# XVID → .avi，avc1 → .mp4fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')vw = cv2.VideoWriter(\"output.avi\", fourcc, fps, size)while True: success, frame = vc.read() if not success: break # 写入前确保frame尺寸和size完全一致 frame = cv2.resize(frame, size) vw.write(frame) cv2.imshow(\"camera\", frame) if cv2.waitKey(1) & 0xFF == 27: break# 必须释放VideoWriter对象，否则视频文件损坏vc.release()vw.release()cv2.destroyAllWindows()\n避坑详解\n视频保存失败90%源于3个问题：①size宽高写反；②编码器与后缀不匹配；③未释放vw对象。必须严格遵守这3点，才能保证视频正常保存。\n六、NumPy数组与数据类型易错案例\n案例14：uint8数值溢出，图像花屏/颜色异常\n错误代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import numpy as npimg = cv2.imread(\"1.jpg\") # 图像类型为uint8，取值范围0-255# 错误：直接对uint8数组做运算，数值超过255会自动取模，导致溢出img_bright = img + 100# 错误2：数值小于0会自动截断，结果异常img_dark = img - 100\n异常现象\n调整亮度后的图像出现大面积色块、花屏，颜色完全错乱，无代码报错。\n正确代码\nPythonimport cv2import numpy as npimg = cv2.imread(\"1.jpg\")if img is None: exit()# 正确步骤：先转float32 → 运算 → 截断0-255 → 转回uint8img_float = img.astype(np.float32)# 亮度调整img_bright = img_float + 100img_dark = img_float - 100# 截断超出0-255的数值，防止溢出img_bright = np.clip(img_bright, 0, 255)img_dark = np.clip(img_dark, 0, 255)# 转回uint8类型img_bright = img_bright.astype(np.uint8)img_dark = img_dark.astype(np.uint8)cv2.imshow(\"original\", img)cv2.imshow(\"bright\", img_bright)cv2.imshow(\"dark\", img_dark)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\nuint8类型的数值范围是0-255，超过255会自动对256取模（比如260→4），小于0会自动加256（比如-10→246），导致结果完全异常。所有图像数值运算，必须先转float32类型。\n案例15：掩码mask维度不匹配，bitwise_and报错\n错误代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2import numpy as npimg = cv2.imread(\"1.jpg\") # 3通道彩色图h, w = img.shape[:2]mask = np.zeros((h, w), np.uint8)cv2.rectangle(mask, (50, 50), (200, 200), 255, -1)# 错误：mask是单通道，和3通道原图维度不匹配，直接报错img_masked = cv2.bitwise_and(img, img, mask=mask)\n异常报错\nPlaintexterror: (-215:Assertion failed) (mtype == CV_8U || mtype == CV_8S) && _mask.sameSize(*psrc1) in function 'cv::binary_op'\n正确代码\nPythonimport cv2import numpy as npimg = cv2.imread(\"1.jpg\")if img is None: exit()h, w = img.shape[:2]# 创建单通道掩码mask = np.zeros((h, w), np.uint8)cv2.rectangle(mask, (50, 50), (200, 200), 255, -1)# 正确：bitwise_and的mask参数必须是单通道，和原图尺寸一致即可，无需匹配通道数# 报错的核心原因是mask尺寸和原图不一致，而非通道数img_masked = cv2.bitwise_and(img, img, mask=mask)cv2.imshow(\"mask\", mask)cv2.imshow(\"masked\", img_masked)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解\ncv2.bitwise_and的mask参数必须是单通道uint8图像，尺寸和原图完全一致即可，无需和原图通道数匹配。报错的核心原因通常是mask的宽高和原图不一致，而非通道数。"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "七、函数参数高频易错案例\n案例16：calcHist参数漏写方括号，直接报错\n错误代码\nPythonimport cv2img = cv2.imread(\"1.jpg\", 0)# 错误：核心参数image/channels/histSize/ranges没有用方括号[]包裹hist = cv2.calcHist(img, 0, None, 256, 0, 255)\n异常报错\nPlaintextTypeError: Expected Ptr<cv::UMat> for argument 'images'\n正确代码\nPythonimport cv2import matplotlib.pyplot as pltimg = cv2.imread(\"1.jpg\", 0)if img is None: exit()# 正确：4个核心参数必须用列表[]包裹hist = cv2.calcHist([img], [0], None, [256], [0, 255])# 彩色图多通道直方图img_color = cv2.imread(\"1.jpg\")hist_b = cv2.calcHist([img_color], [0], None, [256], [0, 255])hist_g = cv2.calcHist([img_color], [1], None, [256], [0, 255])hist_r = cv2.calcHist([img_color], [2], None, [256], [0, 255])plt.plot(hist, color='gray')plt.title(\"灰度直方图\")plt.show()\n避坑详解\ncv2.calcHist是小白TOP1参数错误函数，记住：除了mask参数，其他核心参数都必须用方括号包裹，哪怕只有一个值。\n案例17：findContours返回值解包错误，版本不兼容\n错误代码"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "Pythonimport cv2img = cv2.imread(\"1.jpg\", 0)ret, img_binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)# 错误：OpenCV4.x只返回2个值，写3个会直接报错image, cnts, hierarchy = cv2.findContours(img_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)\n异常报错\nPlaintextValueError: not enough values to unpack (expected 3, got 2)\n正确代码\nPythonimport cv2img = cv2.imread(\"1.jpg\", 0)if img is None: exit()ret, img_binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)# OpenCV4.x 标准写法（2个返回值）cnts, hierarchy = cv2.findContours(img_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)# 全版本兼容写法（适配3.x和4.x）# cnts, hierarchy = cv2.findContours(img_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]# 绘制轮廓img_result = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)cv2.drawContours(img_result, cnts, -1, (0, 0, 255), 2)print(f\"检测到轮廓数量：{len(cnts)}\")cv2.imshow(\"contours\", img_result)cv2.waitKey(0)cv2.destroyAllWindows()\n避坑详解"
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "OpenCV3.x返回3个值，4.x返回2个值，小白优先使用[-2:]切片写法，可适配所有版本，不会出现解包错误。\n|（注：文档部分内容可能由 AI 生成）\n案例：均值模糊窗口显示函数连环错误\n适用知识点：OpenCV 均值模糊、图像显示、窗口等待、窗口销毁。\n教学场景：教师刚讲完 cv2.blur(img, (20, 20)) 的均值模糊操作，虚拟学生现场复现代码。学生把注意力集中在 blur 参数上，忽略了 imshow、waitKey、destroyAllWindows 这些固定窗口函数，导致程序先后出现参数错误、大小写错误和函数名拼写错误。\n易错代码：\n# 均值模糊\nimport cv2\nimg = cv2.imread('pcb.jpg')\ncv2.imshow('img,img')\nimg2 = cv2.blur(img, (20, 20))\ncv2.imshow('imgBlur', img2)\ncv2.waitkey(0)\ncv2.destoryAllWindow()\n常见错误1：cv2.imshow('img,img') 把窗口名和图像变量都写进了引号，图像变量 img 变成了普通字符串，imshow 缺少第二个图像参数。正确写法是 cv2.imshow('img', img)。\n常见错误2：cv2.waitkey(0) 中的 k 写成小写。OpenCV 的函数名区分大小写，正确写法是 cv2.waitKey(0)，K 必须大写，并且需要括号传入等待时间。\n常见错误3：cv2.destoryAllWindow() 把 destroy 拼成 destory，同时 AllWindows 少了末尾 s。正确写法是 cv2.destroyAllWindows()。如果只写 cv2.destroyAllWindows 不加括号，也只是引用函数对象，并没有真正执行关闭窗口。\n课堂警示：这类错误通常不是学生不会算法，而是急着看到结果，凭记忆敲固定代码。越是 imshow、waitKey、destroyAllWindows 这种收尾模板，越要逐字检查大小写、参数逗号、括号和单词拼写。\n正确代码："
+    },
+    {
+      "source": "知识库2.docx",
+      "text": "import cv2\nimg = cv2.imread('pcb.jpg')\nif img is None:\nprint('图像读取失败，请检查 pcb.jpg 是否存在')\nraise SystemExit\ncv2.imshow('img', img)\nimg2 = cv2.blur(img, (20, 20))\ncv2.imshow('imgBlur', img2)\ncv2.waitKey(0)\ncv2.destroyAllWindows()\n讲评建议：先让学生观察报错位置，再追问这个错误是算法错误还是函数调用错误。引导学生总结三句话：imshow 的第一个参数是窗口名，第二个参数才是图像；waitKey 的 K 要大写；destroyAllWindows 必须拼对、带 s、加括号。"
+    }
+  ]
+}
