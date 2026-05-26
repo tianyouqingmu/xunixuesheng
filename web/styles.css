@@ -770,6 +770,13 @@ select option {
   overflow: hidden;
 }
 
+.editor-window,
+.terminal-window {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
 .window-bar,
 .terminal-bar,
 .correct-header {
@@ -807,6 +814,7 @@ select option {
 .code-area,
 .terminal-window pre,
 .correct-panel pre {
+  min-height: 0;
   height: 100%;
   margin: 0;
   padding: 18px;
@@ -818,6 +826,36 @@ select option {
   tab-size: 4;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.code-area::-webkit-scrollbar,
+.terminal-window pre::-webkit-scrollbar {
+  width: 18px;
+  height: 18px;
+}
+
+.code-area::-webkit-scrollbar-track,
+.terminal-window pre::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.code-area::-webkit-scrollbar-thumb,
+.terminal-window pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.55);
+  border: 4px solid rgba(10, 14, 18, 0.92);
+  border-radius: 999px;
+}
+
+.code-area::-webkit-scrollbar-thumb:hover,
+.terminal-window pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.code-area,
+.terminal-window pre {
+  scrollbar-color: rgba(255, 255, 255, 0.62) rgba(255, 255, 255, 0.08);
+  scrollbar-width: auto;
 }
 
 .code-area {
