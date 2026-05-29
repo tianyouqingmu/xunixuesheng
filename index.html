@@ -2,10 +2,290 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=./web/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="./web/">
   <title>AI-VS 虚拟学生</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./styles.css?v=scroll-boxes-1">
 </head>
 <body>
-  <p>正在进入 <a href="./web/">AI-VS 虚拟学生</a>...</p>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="AI-VS 虚拟学生">
+        <div class="brand-copy">
+          <h1>AI-VS 虚拟学生</h1>
+          <div id="statusText" class="status">正在加载知识库...</div>
+        </div>
+      </div>
+
+      <div class="session-banner school-banner" aria-label="常州工业职业技术学院">
+        <img class="school-emblem" src="./assets/school-emblem.png" alt="">
+        <div class="school-banner-copy">
+          <strong>常州工业职业技术学院</strong>
+          <span>AI-VS 虚拟学生课堂演示</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <select id="lessonSelect" class="field-select" aria-label="选择知识点"></select>
+        <select id="mistakeSelect" class="field-select" aria-label="选择易错点"></select>
+        <button id="settingsToggle" class="icon-button" type="button" aria-label="配置" title="配置">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section id="settingsPanel" class="settings-panel" hidden>
+      <div class="panel-title">
+        <div>
+          <h2>大模型配置</h2>
+          <span id="cloudStatus">读取本地配置中</span>
+        </div>
+        <button id="settingsClose" class="icon-button panel-close" type="button" aria-label="关闭配置" title="关闭配置">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="verifyStatus" class="verify-status">API Key 只保存到本机 .env。</div>
+      <div class="settings-grid">
+        <label>
+          云函数代理地址
+          <input id="scfProxyUrl" autocomplete="off" placeholder="https://xxxxx.ap-nanjing.tencentscf.com">
+        </label>
+        <label>
+          Base URL
+          <input id="llmBaseUrl" autocomplete="off" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1">
+        </label>
+        <label>
+          Model
+          <input id="llmModel" autocomplete="off" placeholder="qwen-plus">
+        </label>
+        <label>
+          API Key
+          <input id="llmApiKey" type="password" autocomplete="off" placeholder="留空表示不覆盖已保存密钥">
+        </label>
+        <label>
+          Temperature
+          <input id="llmTemperature" type="number" step="0.05" min="0" max="2">
+        </label>
+        <label>
+          Max Tokens
+          <input id="llmMaxTokens" type="number" min="400" max="4000">
+        </label>
+        <details class="advanced-settings">
+          <summary>腾讯云语音参数</summary>
+          <div class="settings-grid nested">
+            <label>
+              腾讯云 AppID
+              <input id="tencentAppId" autocomplete="off" placeholder="例如：1250000000">
+            </label>
+            <label>
+              SecretId
+              <input id="tencentSecretId" autocomplete="off">
+            </label>
+            <label>
+              SecretKey
+              <input id="tencentSecretKey" type="password" autocomplete="off" placeholder="留空表示不覆盖已保存密钥">
+            </label>
+            <label>
+              Region
+              <input id="tencentRegion" autocomplete="off" placeholder="ap-shanghai">
+            </label>
+            <label>
+              ASR EngineType
+              <input id="tencentAsrEngineType" autocomplete="off" placeholder="16k_zh">
+            </label>
+            <label>
+              ASR HotwordId
+              <input id="tencentAsrHotwordId" autocomplete="off" placeholder="可选">
+            </label>
+            <label>
+              TTS VoiceType
+              <input id="tencentTtsVoiceType" type="number" autocomplete="off" placeholder="1001">
+            </label>
+            <label>
+              TTS Codec
+              <select id="tencentTtsCodec">
+                <option value="wav">wav</option>
+                <option value="mp3">mp3</option>
+              </select>
+            </label>
+            <label>
+              TTS SampleRate
+              <input id="tencentTtsSampleRate" type="number" autocomplete="off" placeholder="16000">
+            </label>
+            <label>
+              TTS Speed
+              <input id="tencentTtsSpeed" type="number" step="0.1" min="-2" max="2" placeholder="0">
+            </label>
+            <label>
+              TTS Volume
+              <input id="tencentTtsVolume" type="number" step="0.5" min="-10" max="10" placeholder="0">
+            </label>
+          </div>
+        </details>
+      </div>
+      <div class="settings-actions">
+        <label class="checkline">
+          <input id="autoSpeak" type="checkbox">
+          <span>显示警示后自动朗读</span>
+        </label>
+        <button id="saveSettings" class="button primary" type="button">保存</button>
+        <button id="verifyTencent" class="button secondary" type="button">验证语音连接</button>
+        <button id="generateScenario" class="button secondary" type="button">知识库生成案例</button>
+      </div>
+    </section>
+
+    <main class="classroom">
+      <section class="student-stage" aria-label="虚拟学生">
+        <div class="student-brief">
+          <span id="studentBadge">虚拟学生</span>
+          <strong id="lessonBrief">OpenCV-Python</strong>
+          <em id="mistakeBrief">等待演示</em>
+        </div>
+
+        <div id="studentFigure" class="student-figure">
+          <div class="student-shadow"></div>
+          <div class="student-body">
+            <div class="hoodie"></div>
+            <div class="shirt"></div>
+            <div class="neck"></div>
+            <div class="head">
+              <div class="hair"></div>
+              <div class="ear left"></div>
+              <div class="ear right"></div>
+              <div class="brow left"></div>
+              <div class="brow right"></div>
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+              <div class="nose"></div>
+              <div class="mouth"></div>
+            </div>
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+            <div class="hand left"></div>
+            <div class="hand right"></div>
+            <div class="keyboard"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="demo-panel" aria-label="虚拟学生电脑">
+        <div class="demo-header">
+          <div>
+            <h2 id="scenarioTitle">易错演示</h2>
+            <div id="tagRow" class="tag-row"></div>
+          </div>
+          <div id="runState" class="run-state">待开始</div>
+        </div>
+
+        <div class="editor-window">
+          <div class="window-bar">
+            <span></span><span></span><span></span>
+            <strong>student_demo.py</strong>
+          </div>
+          <pre class="code-area"><code id="codeText"></code><span id="cursor" class="cursor"></span></pre>
+        </div>
+
+        <div class="terminal-window">
+          <div class="terminal-bar">
+            <strong>运行结果</strong>
+            <button id="clearTerminal" class="mini-button" type="button">清空</button>
+          </div>
+          <pre id="terminalOutput"></pre>
+        </div>
+
+        <div class="demo-actions">
+          <button id="typeButton" class="button primary" type="button">开始敲代码</button>
+          <button id="runButton" class="button danger" type="button">运行</button>
+          <button id="explainButton" class="button secondary" type="button">错误警示</button>
+          <button id="quizButton" class="button secondary quiz-launch" type="button">易错填空</button>
+          <button id="voiceButton" class="button secondary" type="button">语音指令</button>
+          <button id="speakButton" class="button secondary" type="button">朗读警示</button>
+          <button id="stopSpeakButton" class="button secondary" type="button" disabled>停止朗读</button>
+          <button id="resetButton" class="icon-button" type="button" aria-label="重置演示" title="重置演示">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4v6h6"></path>
+              <path d="M20 11a8 8 0 1 0-2.3 5.7"></path>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <aside class="teacher-panel" aria-label="教师控制台">
+        <div class="teacher-block">
+          <h2>教师控制台</h2>
+          <label>
+            本节内容
+            <textarea id="lessonPrompt" rows="4">刚讲完 OpenCV 图像读取、显示和基础数组操作，请生成一个粗心学生容易犯的错误。</textarea>
+          </label>
+        </div>
+
+        <div id="warningPanel" class="warning-panel">
+          <div class="warning-header">
+            <h3>课堂警示</h3>
+            <button id="stopWarningVoice" class="mini-button" type="button" disabled>停止朗读</button>
+          </div>
+          <p id="warningText">演示运行后显示。</p>
+          <dl>
+            <dt>为什么错</dt>
+            <dd id="whyText">-</dd>
+            <dt>学习心理</dt>
+            <dd id="mindsetText">-</dd>
+            <dt>怎么改</dt>
+            <dd id="fixText">-</dd>
+          </dl>
+        </div>
+
+        <div class="correct-panel">
+          <div class="correct-header">
+            <h3>正确写法</h3>
+            <button id="copyCorrect" class="mini-button" type="button">放入编辑器</button>
+          </div>
+          <pre><code id="correctCode"></code></pre>
+        </div>
+
+        <div class="knowledge-panel">
+          <h3>知识库</h3>
+          <div id="knowledgeStatus">读取中</div>
+        </div>
+      </aside>
+    </main>
+
+    <section id="quizOverlay" class="quiz-overlay" hidden aria-label="易错填空小游戏">
+      <div class="quiz-dialog" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+        <div class="quiz-head">
+          <div>
+            <span class="quiz-kicker">课堂小游戏</span>
+            <h2 id="quizTitle">易错填空挑战</h2>
+          </div>
+          <button id="quizClose" class="icon-button quiz-close" type="button" aria-label="关闭易错填空" title="关闭">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quiz-board">
+          <div class="quiz-rule" id="quizRule">点一个空格，再点下方选项填入。</div>
+          <div id="quizLines" class="quiz-lines"></div>
+          <div id="quizChoices" class="quiz-choices"></div>
+          <div id="quizMessage" class="quiz-message">先选中一个空格。</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button id="quizReset" class="quiz-pill" type="button">重置</button>
+          <button id="quizCheck" class="quiz-pill primary" type="button">检查答案</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/studentEngine.js?v=blur-case-1"></script>
+  <script src="./js/app.js?v=quiz-resize-2"></script>
 </body>
 </html>
